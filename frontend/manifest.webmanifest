@@ -1,0 +1,10 @@
+{
+  "name": "Story Tracker Screenshot Edition",
+  "short_name": "StoryShot",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f5f8",
+  "theme_color": "#1877f2",
+  "description": "Upload screenshot, save image to Drive, save entry to Google Sheets",
+  "icons": []
+}

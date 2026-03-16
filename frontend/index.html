@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Story Tracker Screenshot Edition</title>
+  <meta name="theme-color" content="#1877f2" />
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body data-theme="light">
+  <div class="app">
+    <header class="hero">
+      <div class="hero__inner">
+        <div>
+          <p class="eyebrow">Screenshot + Drive Edition</p>
+          <h1>Story Tracker AI Screenshot Edition</h1>
+          <p class="hero__desc">
+            ระบบบันทึกคนดู Story / Reel / Post แบบใหม่ รองรับการอัปโหลดภาพหน้าจอ,
+            เก็บภาพลง Google Drive, บันทึกลิงก์ลง Google Sheet และให้คุณตรวจทานรายชื่อก่อนบันทึก
+          </p>
+          <p class="hero__note">
+            เวอร์ชันนี้ยังไม่ทำ OCR อัตโนมัติภายในตัวแอป เพื่อหลีกเลี่ยงความคลาดเคลื่อนสูง
+            แต่รองรับ workflow ที่ปลอดภัยกว่า: อัปโหลดภาพ → พิมพ์/วางรายชื่อ → บันทึกพร้อมภาพ
+          </p>
+        </div>
+        <div class="hero__actions">
+          <button id="toggleThemeBtn" class="btn btn--ghost">🌗 สลับธีม</button>
+          <button id="saveConfigBtn" class="btn btn--primary">💾 บันทึกค่าเชื่อมต่อ</button>
+          <button id="testBtn" class="btn btn--ghost">🧪 ทดสอบ API</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <h2>ตั้งค่าการเชื่อมต่อ</h2>
+            <p class="muted">ใส่ Web App URL ของ Apps Script แล้วระบบจะจำไว้ในเครื่อง</p>
+          </div>
+          <div class="chips">
+            <span id="apiStatus" class="chip">สถานะ: ยังไม่ได้ตรวจสอบ</span>
+            <span id="storageStatus" class="chip">Storage: Local + Cloud</span>
+          </div>
+        </div>
+        <div class="grid grid--2">
+          <label class="field">
+            <span>Apps Script Web App URL (/exec)</span>
+            <input id="apiUrl" type="url" placeholder="https://script.google.com/macros/s/AKfycbybYOEj4ibtTPld4YFoxm1cGvtmRbAnLSQezdQfT0xekdpQdq9_AJrumdvzfxxkIGOhFg/exec">
+          </label>
+          <label class="field">
+            <span>ชื่อเจ้าของระบบ</span>
+            <input id="ownerName" type="text" placeholder="เช่น Biggy Teacher">
+          </label>
+        </div>
+      </section>
+
+      <div class="grid grid--content">
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <h2>บันทึกข้อมูลพร้อมภาพหน้าจอ</h2>
+              <p class="muted">อัปโหลดภาพหน้าจอ แล้ววางรายชื่อคนดูที่คุณอ่านได้ เพื่อเก็บภาพ + ข้อมูลในรายการเดียวกัน</p>
+            </div>
+          </div>
+
+          <form id="entryForm" class="stack">
+            <div class="grid grid--3">
+              <label class="field">
+                <span>วันที่</span>
+                <input id="entryDate" type="date">
+              </label>
+              <label class="field">
+                <span>เวลา</span>
+                <input id="entryTime" type="time">
+              </label>
+              <label class="field">
+                <span>ประเภท</span>
+                <select id="entryType">
+                  <option value="story">Story</option>
+                  <option value="reel">Reel / Video</option>
+                  <option value="post">Post</option>
+                  <option value="other">อื่น ๆ</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="grid grid--2">
+              <label class="field">
+                <span>ชื่อชุดข้อมูล</span>
+                <input id="entryLabel" type="text" placeholder="เช่น Story เย็น / Story โปรโมชัน">
+              </label>
+              <label class="field">
+                <span>หมายเหตุ</span>
+                <input id="entryNote" type="text" placeholder="เช่น ลงเวลา 20:15 / ดูเหมือนมีคนเดิมโผล่บ่อย">
+              </label>
+            </div>
+
+            <div class="grid grid--2">
+              <label class="field">
+                <span>อัปโหลดภาพหน้าจอ</span>
+                <input id="entryImage" type="file" accept="image/*">
+              </label>
+              <div class="preview-box">
+                <div class="preview-box__title">ตัวอย่างภาพ</div>
+                <img id="imagePreview" class="preview-box__img hidden" alt="preview">
+                <div id="imagePreviewEmpty" class="empty-box">ยังไม่ได้เลือกภาพ</div>
+              </div>
+            </div>
+
+            <label class="field">
+              <span>รายชื่อคนดู (วางทีละบรรทัด หรือคั่นด้วยจุลภาค)</span>
+              <textarea id="entryViewers" placeholder="ตัวอย่าง:
+Aom
+Mint
+Biggy
+
+หรือ
+Aom, Mint, Biggy"></textarea>
+            </label>
+
+            <div class="actions">
+              <button type="submit" class="btn btn--primary">บันทึกลงระบบ</button>
+              <button id="syncBtn" type="button" class="btn btn--success">Sync รายการค้าง</button>
+              <button id="demoBtn" type="button" class="btn btn--ghost">ใส่ข้อมูลตัวอย่าง</button>
+              <button id="exportBtn" type="button" class="btn btn--warning">Export JSON</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <h2>Dashboard</h2>
+              <p class="muted">สรุปจำนวนรายการ คนไม่ซ้ำ คนที่โผล่บ่อย และรายการที่มีภาพแนบ</p>
+            </div>
+          </div>
+          <div id="statsGrid" class="stats"></div>
+          <div class="toolbar">
+            <input id="searchInput" placeholder="ค้นหาชื่อ / label / note">
+            <input id="startDate" type="date">
+            <input id="endDate" type="date">
+          </div>
+          <h3>Top Viewers</h3>
+          <div id="rankingList" class="list"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <h2>ประวัติทั้งหมด</h2>
+            <p class="muted">ดูสถานะ sync และลิงก์ภาพใน Drive</p>
+          </div>
+        </div>
+        <div id="historyList" class="list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./assets/app.js"></script>
+</body>
+</html>
