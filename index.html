@@ -1,163 +1,111 @@
 <!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Story Tracker Screenshot Edition</title>
-  <meta name="theme-color" content="#1877f2" />
-  <link rel="stylesheet" href="./assets/styles.css" />
-</head>
-<body data-theme="light">
-  <div class="app">
-    <header class="hero">
-      <div class="hero__inner">
-        <div>
-          <p class="eyebrow">Screenshot + Drive Edition</p>
-          <h1>Story Tracker AI Screenshot Edition</h1>
-          <p class="hero__desc">
-            ระบบบันทึกคนดู Story / Reel / Post แบบใหม่ รองรับการอัปโหลดภาพหน้าจอ,
-            เก็บภาพลง Google Drive, บันทึกลิงก์ลง Google Sheet และให้คุณตรวจทานรายชื่อก่อนบันทึก
-          </p>
-          <p class="hero__note">
-            เวอร์ชันนี้ยังไม่ทำ OCR อัตโนมัติภายในตัวแอป เพื่อหลีกเลี่ยงความคลาดเคลื่อนสูง
-            แต่รองรับ workflow ที่ปลอดภัยกว่า: อัปโหลดภาพ → พิมพ์/วางรายชื่อ → บันทึกพร้อมภาพ
-          </p>
-        </div>
-        <div class="hero__actions">
-          <button id="toggleThemeBtn" class="btn btn--ghost">🌗 สลับธีม</button>
-          <button id="saveConfigBtn" class="btn btn--primary">💾 บันทึกค่าเชื่อมต่อ</button>
-          <button id="testBtn" class="btn btn--ghost">🧪 ทดสอบ API</button>
-        </div>
-      </div>
-    </header>
+<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Story Tracker OCR</title>
+<style>
+body{font-family:system-ui,-apple-system,sans-serif;margin:0;background:#f3f5f8;color:#17212b}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}.panel{background:#fff;border:1px solid #dbe2ea;border-radius:18px;padding:18px;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,#1877f2,#42a5f5);color:#fff;border-radius:20px;padding:22px;margin-bottom:18px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+input,select,textarea,button{font:inherit} input,select,textarea{width:100%;padding:12px;border:1px solid #dbe2ea;border-radius:12px;box-sizing:border-box}
+textarea{min-height:150px} button{padding:11px 15px;border:0;border-radius:12px;cursor:pointer;font-weight:700}
+.primary{background:#1877f2;color:#fff}.ghost{background:#edf4ff;color:#1877f2}.success{background:#e8f7ee;color:#179c52}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.muted{color:#667281}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}@media(max-width:900px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:#f7f9fc;border:1px solid #dbe2ea;border-radius:14px;padding:14px}.num{font-size:28px;font-weight:900}
+.list{display:flex;flex-direction:column;gap:10px}.item{background:#f7f9fc;border:1px solid #dbe2ea;border-radius:14px;padding:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+img{max-width:100%;max-height:280px;border:1px solid #dbe2ea;border-radius:12px}
+pre{white-space:pre-wrap;background:#f7f9fc;border:1px solid #dbe2ea;border-radius:12px;padding:12px}
+.tag{display:inline-block;background:#fff;border:1px solid #dbe2ea;border-radius:999px;padding:5px 9px;margin:4px 6px 0 0;font-size:12px}
+</style></head><body><div class="wrap">
+<div class="hero"><h1>Story Tracker Google Vision OCR</h1><div>อัปโหลดภาพหน้าจอ → OCR → ตรวจทาน → บันทึก → แสดงคนที่ดูบ่อย</div></div>
 
-    <main class="page">
-      <section class="panel">
-        <div class="panel__header">
-          <div>
-            <h2>ตั้งค่าการเชื่อมต่อ</h2>
-            <p class="muted">ใส่ Web App URL ของ Apps Script แล้วระบบจะจำไว้ในเครื่อง</p>
-          </div>
-          <div class="chips">
-            <span id="apiStatus" class="chip">สถานะ: ยังไม่ได้ตรวจสอบ</span>
-            <span id="storageStatus" class="chip">Storage: Local + Cloud</span>
-          </div>
-        </div>
-        <div class="grid grid--2">
-          <label class="field">
-            <span>Apps Script Web App URL (/exec)</span>
-            <input id="apiUrl" type="url" placeholder="https://script.google.com/macros/s/AKfycbz5fmqN3Nf4FYzyPvaf2Tb_WYd-HGUn_oNc9bq5yTFMjGRP4gEJmsHAL3UlPXnKXNCrLA/exec">
-          </label>
-          <label class="field">
-            <span>ชื่อเจ้าของระบบ</span>
-            <input id="ownerName" type="text" placeholder="เช่น Biggy Teacher">
-          </label>
-        </div>
-      </section>
+<div class="panel">
+<h2>ตั้งค่า</h2>
+<div class="grid g2">
+<div><div>Apps Script Web App URL (/exec)</div><input id="apiUrl" placeholder="https://script.google.com/macros/s/xxxxx/exec"></div>
+<div><div>ชื่อเจ้าของระบบ</div><input id="ownerName" placeholder="เช่น Biggy Teacher"></div>
+</div>
+<div class="actions" style="margin-top:12px">
+<button class="primary" id="saveCfg">บันทึกค่า</button>
+<button class="ghost" id="testApi">ทดสอบ API</button>
+<div id="status" class="muted">สถานะ: ยังไม่ได้ตรวจสอบ</div>
+</div>
+</div>
 
-      <div class="grid grid--content">
-        <section class="panel">
-          <div class="panel__header">
-            <div>
-              <h2>บันทึกข้อมูลพร้อมภาพหน้าจอ</h2>
-              <p class="muted">อัปโหลดภาพหน้าจอ แล้ววางรายชื่อคนดูที่คุณอ่านได้ เพื่อเก็บภาพ + ข้อมูลในรายการเดียวกัน</p>
-            </div>
-          </div>
+<div class="panel">
+<h2>OCR จากภาพ</h2>
+<div class="grid g3">
+<div><div>วันที่</div><input id="date" type="date"></div>
+<div><div>เวลา</div><input id="time" type="time"></div>
+<div><div>ประเภท</div><select id="type"><option value="story">Story</option><option value="reel">Reel</option><option value="post">Post</option><option value="other">Other</option></select></div>
+</div>
+<div class="grid g2" style="margin-top:12px">
+<div><div>ชื่อชุดข้อมูล</div><input id="label" placeholder="เช่น Story เย็น"></div>
+<div><div>หมายเหตุ</div><input id="note" placeholder="เช่น คนเดิมโผล่หลายวัน"></div>
+</div>
+<div class="grid g2" style="margin-top:12px">
+<div><div>ภาพหน้าจอ</div><input id="image" type="file" accept="image/*"><div style="margin-top:10px"><img id="preview" style="display:none"></div></div>
+<div><div>รายชื่อจาก OCR (แก้ไขได้)</div><textarea id="viewers"></textarea></div>
+</div>
+<div class="actions" style="margin-top:12px">
+<button class="primary" id="runOcr">OCR อ่านชื่อจากภาพ</button>
+<button class="success" id="saveEntry">บันทึกลงชีต + เก็บรูปใน Drive</button>
+<button class="ghost" id="syncPending">Sync รายการค้าง</button>
+<button class="ghost" id="exportJson">Export JSON</button>
+</div>
+<div style="margin-top:12px"><div>ข้อความ OCR ดิบ</div><pre id="rawText">ยังไม่มีข้อมูล OCR</pre></div>
+</div>
 
-          <form id="entryForm" class="stack">
-            <div class="grid grid--3">
-              <label class="field">
-                <span>วันที่</span>
-                <input id="entryDate" type="date">
-              </label>
-              <label class="field">
-                <span>เวลา</span>
-                <input id="entryTime" type="time">
-              </label>
-              <label class="field">
-                <span>ประเภท</span>
-                <select id="entryType">
-                  <option value="story">Story</option>
-                  <option value="reel">Reel / Video</option>
-                  <option value="post">Post</option>
-                  <option value="other">อื่น ๆ</option>
-                </select>
-              </label>
-            </div>
+<div class="panel">
+<h2>Dashboard</h2>
+<div class="stats" id="stats"></div>
+<div class="grid g3" style="margin-top:12px">
+<input id="search" placeholder="ค้นหาชื่อ / label / note"><input id="start" type="date"><input id="end" type="date">
+</div>
+<h3>Top Viewers</h3><div class="list" id="ranking"></div>
+</div>
 
-            <div class="grid grid--2">
-              <label class="field">
-                <span>ชื่อชุดข้อมูล</span>
-                <input id="entryLabel" type="text" placeholder="เช่น Story เย็น / Story โปรโมชัน">
-              </label>
-              <label class="field">
-                <span>หมายเหตุ</span>
-                <input id="entryNote" type="text" placeholder="เช่น ลงเวลา 20:15 / ดูเหมือนมีคนเดิมโผล่บ่อย">
-              </label>
-            </div>
+<div class="panel">
+<h2>ประวัติ</h2><div class="list" id="history"></div>
+</div>
 
-            <div class="grid grid--2">
-              <label class="field">
-                <span>อัปโหลดภาพหน้าจอ</span>
-                <input id="entryImage" type="file" accept="image/*">
-              </label>
-              <div class="preview-box">
-                <div class="preview-box__title">ตัวอย่างภาพ</div>
-                <img id="imagePreview" class="preview-box__img hidden" alt="preview">
-                <div id="imagePreviewEmpty" class="empty-box">ยังไม่ได้เลือกภาพ</div>
-              </div>
-            </div>
-
-            <label class="field">
-              <span>รายชื่อคนดู (วางทีละบรรทัด หรือคั่นด้วยจุลภาค)</span>
-              <textarea id="entryViewers" placeholder="ตัวอย่าง:
-Aom
-Mint
-Biggy
-
-หรือ
-Aom, Mint, Biggy"></textarea>
-            </label>
-
-            <div class="actions">
-              <button type="submit" class="btn btn--primary">บันทึกลงระบบ</button>
-              <button id="syncBtn" type="button" class="btn btn--success">Sync รายการค้าง</button>
-              <button id="demoBtn" type="button" class="btn btn--ghost">ใส่ข้อมูลตัวอย่าง</button>
-              <button id="exportBtn" type="button" class="btn btn--warning">Export JSON</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="panel">
-          <div class="panel__header">
-            <div>
-              <h2>Dashboard</h2>
-              <p class="muted">สรุปจำนวนรายการ คนไม่ซ้ำ คนที่โผล่บ่อย และรายการที่มีภาพแนบ</p>
-            </div>
-          </div>
-          <div id="statsGrid" class="stats"></div>
-          <div class="toolbar">
-            <input id="searchInput" placeholder="ค้นหาชื่อ / label / note">
-            <input id="startDate" type="date">
-            <input id="endDate" type="date">
-          </div>
-          <h3>Top Viewers</h3>
-          <div id="rankingList" class="list"></div>
-        </section>
-      </div>
-
-      <section class="panel">
-        <div class="panel__header">
-          <div>
-            <h2>ประวัติทั้งหมด</h2>
-            <p class="muted">ดูสถานะ sync และลิงก์ภาพใน Drive</p>
-          </div>
-        </div>
-        <div id="historyList" class="list"></div>
-      </section>
-    </main>
-  </div>
-
-  <script type="module" src="./assets/app.js"></script>
-</body>
-</html>
+<script>
+const K={data:'st_gv_data',cfg:'st_gv_cfg'};
+const $=id=>document.getElementById(id);
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const nowTime=()=>{const d=new Date();return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+const uid=()=>window.crypto?.randomUUID?.()||('id-'+Date.now()+'-'+Math.random().toString(16).slice(2));
+const getJ=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}};
+const setJ=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const cfg=()=>getJ(K.cfg,{apiUrl:'',ownerName:''});
+const rows=()=>getJ(K.data,[]);
+const esc=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
+const norm=raw=>{const m=new Map(); String(raw||'').split(/\n|,/g).map(x=>x.trim()).filter(Boolean).forEach(n=>{const k=n.toLowerCase();if(!m.has(k))m.set(k,n)}); return [...m.values()]};
+const fileToB64=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result||''));r.onerror=rej;r.readAsDataURL(f)});
+async function api(action,payload={}){const c=cfg(); if(!c.apiUrl) throw new Error('ยังไม่ได้ใส่ Web App URL'); const r=await fetch(c.apiUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,payload})}); const j=await r.json(); if(!j.ok) throw new Error(j.message||'API error'); return j;}
+let currentImage='', currentRaw='';
+function init(){ $('date').value=today(); $('time').value=nowTime(); $('apiUrl').value=cfg().apiUrl||''; $('ownerName').value=cfg().ownerName||''; render(); }
+$('saveCfg').onclick=()=>{setJ(K.cfg,{apiUrl:$('apiUrl').value.trim(),ownerName:$('ownerName').value.trim()}); alert('บันทึกค่าแล้ว')};
+$('testApi').onclick=async()=>{try{await api('ping',{}); $('status').textContent='สถานะ: เชื่อมต่อสำเร็จ'}catch(e){$('status').textContent='สถานะ: '+e.message}};
+$('image').onchange=async(e)=>{const f=e.target.files?.[0]; if(!f) return; currentImage=await fileToB64(f); $('preview').src=currentImage; $('preview').style.display='block';};
+$('runOcr').onclick=async()=>{try{ if(!currentImage) throw new Error('กรุณาเลือกภาพก่อน'); const j=await api('ocrScreenshot',{imageBase64:currentImage}); currentRaw=j.rawText||''; $('rawText').textContent=currentRaw||'ไม่พบข้อความ'; $('viewers').value=(j.candidateNames||[]).join('\n'); alert('OCR สำเร็จ พบชื่อเบื้องต้น '+((j.candidateNames||[]).length)+' รายการ'); }catch(e){alert(e.message)}};
+$('saveEntry').onclick=async()=>{try{
+  const viewers=norm($('viewers').value); if(!viewers.length) throw new Error('กรุณาตรวจทานรายชื่ออย่างน้อย 1 ชื่อ');
+  const c=cfg();
+  const entry={id:uid(),date:$('date').value||today(),time:$('time').value||nowTime(),type:$('type').value,label:$('label').value.trim()||'ไม่ได้ระบุ',note:$('note').value.trim(),viewers,ownerName:c.ownerName||'',imageBase64:currentImage,imageDriveUrl:'',imageFileId:'',ocrRawText:currentRaw,syncStatus:'pending',updatedAt:new Date().toISOString()};
+  setJ(K.data,[entry,...rows()]);
+  if(c.apiUrl){ const r=await api('saveEntryWithImage',{entry}); setJ(K.data, rows().map(x=>x.id===entry.id?({...x,syncStatus:'synced',imageDriveUrl:r.imageDriveUrl||'',imageFileId:r.imageFileId||''}):x)); }
+  $('label').value=''; $('note').value=''; $('viewers').value=''; $('rawText').textContent='ยังไม่มีข้อมูล OCR'; $('image').value=''; $('preview').style.display='none'; currentImage=''; currentRaw=''; render(); alert('บันทึกข้อมูลแล้ว');
+}catch(e){alert(e.message)}};
+$('syncPending').onclick=async()=>{try{let count=0; for(const entry of rows().filter(x=>x.syncStatus!=='synced')){const r=await api('saveEntryWithImage',{entry}); count++; setJ(K.data, rows().map(x=>x.id===entry.id?({...x,syncStatus:'synced',imageDriveUrl:r.imageDriveUrl||'',imageFileId:r.imageFileId||''}):x));} render(); alert('Sync สำเร็จ '+count+' รายการ');}catch(e){alert(e.message)}};
+$('exportJson').onclick=()=>{const blob=new Blob([JSON.stringify(rows(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='story_tracker_google_vision_ocr.json'; a.click(); URL.revokeObjectURL(a.href);};
+['search','start','end'].forEach(id=>$(id).addEventListener('input',render));
+function filtered(){const q=$('search').value.trim().toLowerCase(), s=$('start').value, e=$('end').value; return rows().filter(r=>{const okQ=!q||r.viewers.some(v=>v.toLowerCase().includes(q))||String(r.label||'').toLowerCase().includes(q)||String(r.note||'').toLowerCase().includes(q); const okS=!s||r.date>=s; const okE=!e||r.date<=e; return okQ&&okS&&okE;});}
+function render(){const data=filtered(); const totalEntries=data.length, totalViews=data.reduce((a,b)=>a+b.viewers.length,0), unique=new Set(data.flatMap(r=>r.viewers.map(v=>v.toLowerCase()))).size, withImage=data.filter(r=>r.imageDriveUrl||r.imageBase64).length;
+ $('stats').innerHTML=[['จำนวนรายการ',totalEntries],['จำนวนชื่อรวม',totalViews],['คนไม่ซ้ำ',unique],['มีภาพแนบ',withImage]].map(([l,v])=>`<div class="stat"><div class="num">${esc(v)}</div><div class="muted">${esc(l)}</div></div>`).join('');
+ const count={}, days={}, names={}; data.forEach(r=>{const seen=new Set(); r.viewers.forEach(n=>{const k=n.toLowerCase(); count[k]=(count[k]||0)+1; names[k]=names[k]||n; if(!seen.has(k)){days[k]=(days[k]||0)+1; seen.add(k)}})});
+ const ranked=Object.keys(count).map(k=>({name:names[k],total:count[k],days:days[k]||0})).sort((a,b)=>b.total-a.total||b.days-a.days||a.name.localeCompare(b.name,'th'));
+ $('ranking').innerHTML=ranked.length?ranked.slice(0,10).map((r,i)=>`<div class="item"><div><div style="font-weight:900">${i+1}. ${esc(r.name)}</div><div class="muted">รวม ${r.total} ครั้ง • โผล่ ${r.days} วัน</div></div><div>${r.total}</div></div>`).join(''):`<div class="empty">ยังไม่มีข้อมูล</div>`;
+ $('history').innerHTML=data.length?[...data].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)).map(r=>`<div class="item"><div><div style="font-weight:900">${esc(r.date)} ${esc(r.time||'')} • ${esc(r.type)}</div><div class="muted">${esc(r.label||'')}${r.note?(' • '+esc(r.note)):''}</div><div class="muted">sync: ${esc(r.syncStatus||'pending')}${r.imageDriveUrl?(' • <a target="_blank" rel="noopener" href="'+esc(r.imageDriveUrl)+'">เปิดรูปใน Drive</a>'):''}</div><div>${r.viewers.map(v=>`<span class="tag">${esc(v)}</span>`).join('')}</div></div></div>`).join(''):`<div class="empty">ยังไม่มีประวัติ</div>`;
+}
+init();
+</script></div></body></html>
